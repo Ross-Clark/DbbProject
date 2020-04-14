@@ -23,6 +23,9 @@
                 @Html.ActionLink(Html.DisplayNameFor(model => model.Description), "SearchGames", new { sortOrder = ViewBag.DescriptionSortParm })
             </th>
             <th>
+                @Html.DisplayNameFor(model => model.GameImage))
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => model.Price)
             </th>
         </tr>
@@ -36,6 +39,20 @@
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Description)
+            </td>
+            <td>
+                @if (item.GameImage != null)
+                {
+                    var imageBase64 = Convert.ToBase64String(item.GameImage);
+
+                    var imageSrc = String.Format("data:image/gif;base64,{0}", imageBase64);
+
+                    <img src="@imageSrc" class="img-thumbnail img-rounded" style="max-width: 65%; height: auto;" />
+                }
+                else
+                {
+                    <p>No Available Image</p>
+                }
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Price)

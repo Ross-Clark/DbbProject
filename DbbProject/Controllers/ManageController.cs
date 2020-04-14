@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Encodings.Web;
@@ -101,6 +102,24 @@ namespace DbbProject.Controllers
           throw new ApplicationException($"Unexpected error occurred setting phone number for user with ID '{user.Id}'.");
         }
       }
+
+      byte[] imageByteArray = new byte[0];
+      if (model.ProfilePicture != null && model.ProfilePicture.Length > 0) //check if a new image is supplied and use if so use it
+      {
+        var imageMemoryStream = new MemoryStream();
+        model.ProfilePicture.CopyTo(imageMemoryStream);
+        imageByteArray = imageMemoryStream.ToArray();
+      }
+      else // use old image or no image
+      {
+        if (user.ProfilePicture != null && user.ProfilePicture.Length > 0) // handle if there was never an image
+        {
+          imageByteArray = user.ProfilePicture.ToArray(); // use old image
+        }
+      }
+
+      user.ProfilePicture = imageByteArray;
+      var setProfilePictureResult = await _userManager.UpdateAsync(user);
 
       StatusMessage = "Your profile has been updated";
       return RedirectToAction(nameof(Index));
@@ -394,7 +413,6 @@ namespace DbbProject.Controllers
         return View(model);
       }
 
-      // Strip spaces and hypens
       var verificationCode = model.Code.Replace(" ", string.Empty).Replace("-", string.Empty);
 
       var is2faTokenValid = await _userManager.VerifyTwoFactorTokenAsync(

@@ -40,8 +40,18 @@
             <td>
                 @Html.DisplayFor(modelItem => item.Price)
             </td>
-            <td>
-                @Html.DisplayFor(modelItem=>item.GameImage)
+            <td >
+                @if (item.GameImage != null)
+                {
+                    var imageBase64 = Convert.ToBase64String(item.GameImage);
+                    var imageSrc = String.Format("data:image/gif;base64,{0}", imageBase64);
+
+                    <img src="@imageSrc" class="img-thumbnail img-rounded" style="max-width: 65%; height: auto;"/>
+                }
+                else
+                {
+                    <p>No Available Image</p>
+                }
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.GameId">Edit</a> |

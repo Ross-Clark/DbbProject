@@ -32,7 +32,17 @@
             @Html.DisplayNameFor(model => model.Image)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Image)
+            @if (ViewBag.ImageData != null)
+            {
+                var imageBase64 = Convert.ToBase64String(ViewBag.ImageData);
+                var imageSrc = String.Format("data:image/gif;base64,{0}", imageBase64);
+
+                <img src="@imageSrc" class="img-thumbnail img-rounded" style="max-width: 65%; height: auto;"/>
+            }
+            else
+            {
+                <p>No Available Image</p>
+            }
         </dd>
     </dl>
 </div>

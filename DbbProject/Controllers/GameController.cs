@@ -64,6 +64,7 @@ namespace DbbProject.Controllers
         var games = _context.Games.Where(g => g.Name.Contains(searchString)
                                             || g.Description.Contains(searchString));
 
+
         switch (sortOrder) // sorts games list. default by name
         {
           case "name_desc":
@@ -114,7 +115,7 @@ namespace DbbProject.Controllers
   // POST: Game/Create
     [HttpPost]
   [ValidateAntiForgeryToken]
-  public async Task<IActionResult> Create([Bind("GameId,Name,GameImage,Description,Price")] GameViewModel game)
+  public async Task<IActionResult> Create(GameViewModel game)
   {
     ApplicationUser currentUser = await _userManager.GetUserAsync(HttpContext.User);
     if (ModelState.IsValid)
@@ -137,7 +138,7 @@ namespace DbbProject.Controllers
         Description = game.Description,
         Price = game.Price
       };
-        _context.Add(newGame);
+      _context.Add(newGame);
       await _context.SaveChangesAsync();
       return RedirectToAction(nameof(OwnGames));
     }
@@ -172,6 +173,7 @@ namespace DbbProject.Controllers
       Price = game.Price
     };
 
+
     return View(gameViewModel);
 
   }
@@ -179,12 +181,12 @@ namespace DbbProject.Controllers
     // POST: Game/Edit/5
     [HttpPost]
   [ValidateAntiForgeryToken]
-  public async Task<IActionResult> Edit(int id, [Bind("GameId,Name,GameImage,Description,Price")] GameViewModel game)
+  public async Task<IActionResult> Edit(int id, GameViewModel game)
   {
     ApplicationUser currentUser = await _userManager.GetUserAsync(HttpContext.User);// find current user
 
-    // if the game does not exist, return error
-    if (id != game.GameId)
+   
+    if (id != game.GameId) // if the game does not exist, return error
     {
       return NotFound();
     }
@@ -200,8 +202,9 @@ namespace DbbProject.Controllers
     {
       // handle images first
       byte[] imageByteArray = new byte[0];
-      if (game.Image != null && game.Image.Length > 0) //check if a new image is supplied and use if so
+      if (game.Image != null && game.Image.Length > 0) //check if a new image is supplied and use if so use it
       {
+
           var imageMemoryStream = new MemoryStream();
           game.Image.CopyTo(imageMemoryStream);
           imageByteArray = imageMemoryStream.ToArray();
@@ -284,7 +287,8 @@ namespace DbbProject.Controllers
     }
 
     await _context.SaveChangesAsync(); // async removal of current game from db
-    return RedirectToAction(nameof(OwnGames));
+
+    return RedirectToAction(nameof(OwnGames)); //redirect back to owngames
     }
 
     // GET: ComputerAccessories/Details/5
@@ -303,7 +307,7 @@ namespace DbbProject.Controllers
       return NotFound();
     }
 
-    var model = new GameViewModel()
+    var gameViewModel = new GameViewModel()
     {
       GameId = game.GameId,
       Name = game.Name,
@@ -311,9 +315,9 @@ namespace DbbProject.Controllers
       Price = game.Price
     };
 
-      //need to insert game image
+    ViewBag.ImageData = game.GameImage;
 
-    return View(model);
+    return View(gameViewModel);
   }
   }
 }

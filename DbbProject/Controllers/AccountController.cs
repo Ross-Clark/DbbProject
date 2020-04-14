@@ -58,7 +58,7 @@ namespace DbbProject.Controllers
       {
         // This doesn't count login failures towards account lockout
         // To enable password failures to trigger account lockout, set lockoutOnFailure: true
-        var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
+        var result = await _signInManager.PasswordSignInAsync(model.UserName, model.Password, model.RememberMe, lockoutOnFailure: false);
         if (result.Succeeded)
         {
           _logger.LogInformation("User logged in.");
@@ -229,7 +229,6 @@ namespace DbbProject.Controllers
         };
 
         // takes picture and converts to bytes if it exists
-        // may be worth programming in a default
         if (model.ProfilePicture != null && model.ProfilePicture.Length != 0)
         {
           using (MemoryStream pictureMemoryStream = new MemoryStream())

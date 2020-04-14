@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
 
 namespace DbbProject.Models.ManageViewModels
 {
@@ -21,5 +18,8 @@ namespace DbbProject.Models.ManageViewModels
     public string PhoneNumber { get; set; }
 
     public string StatusMessage { get; set; }
+
+    public IFormFile ProfilePicture { get; set; }
+
   }
 }
