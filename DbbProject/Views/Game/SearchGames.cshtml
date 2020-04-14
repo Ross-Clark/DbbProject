@@ -1,0 +1,46 @@
+﻿@model IEnumerable<DbbProject.Models.Game>
+
+@{
+    ViewData["Title"] = "SearchAllGames";
+}
+
+<h2>Games for Sale</h2>
+
+<form asp-controller="Game" asp-action="SearchGames">
+    <p>
+        Title: <input type="text" name="searchString">
+        <input type="submit" value="Filter" />
+    </p>
+</form>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.ActionLink(Html.DisplayNameFor(model=>model.Name), "SearchGames", new { sortOrder = ViewBag.NameSortParm })
+            </th>
+            <th>
+                @Html.ActionLink(Html.DisplayNameFor(model => model.Description), "SearchGames", new { sortOrder = ViewBag.DescriptionSortParm })
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Price)
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Description)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Price)
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>

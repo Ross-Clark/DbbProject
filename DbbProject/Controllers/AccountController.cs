@@ -1,15 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.IO;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using DbbProject.Models;
 using DbbProject.Models.AccountViewModels;
 using DbbProject.Services;
@@ -83,7 +80,7 @@ namespace DbbProject.Controllers
         }
       }
 
-      // If we got this far, something failed, redisplay form
+      // redisplay form on failure
       return View(model);
     }
 
@@ -220,7 +217,28 @@ namespace DbbProject.Controllers
       ViewData["ReturnUrl"] = returnUrl;
       if (ModelState.IsValid)
       {
-        var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
+
+        var user = new ApplicationUser { 
+          UserName = model.UserName,
+          Email = model.Email,
+          FirstName = model.FirstName,
+          Surname = model.Surname,
+          MobileNumber = model.MobileNumber,
+          PostCode = model.PostCode,
+
+        };
+
+        // takes picture and converts to bytes if it exists
+        // may be worth programming in a default
+        if (model.ProfilePicture != null && model.ProfilePicture.Length != 0)
+        {
+          using (MemoryStream pictureMemoryStream = new MemoryStream())
+          {
+            await model.ProfilePicture.CopyToAsync(pictureMemoryStream);
+            user.ProfilePicture = pictureMemoryStream.ToArray();
+          }
+        }
+
         var result = await _userManager.CreateAsync(user, model.Password);
         if (result.Succeeded)
         {
@@ -236,8 +254,6 @@ namespace DbbProject.Controllers
         }
         AddErrors(result);
       }
-
-      // If we got this far, something failed, redisplay form
       return View(model);
     }
 

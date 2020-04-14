@@ -1,13 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace DbbProject.Models.AccountViewModels
 {
   public class RegisterViewModel
   {
+    [Required]
+    [Display(Name = "User Name")]
+    [MaxLength(20)]
+    [MinLength(3)]
+    public string UserName { get; set; }
+
     [Required]
     [EmailAddress]
     [Display(Name = "Email")]
@@ -23,5 +27,26 @@ namespace DbbProject.Models.AccountViewModels
     [Display(Name = "Confirm password")]
     [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
     public string ConfirmPassword { get; set; }
+
+    [Required]
+    [Display(Name = "First Name")]
+    public string FirstName { get; set; }
+
+    [Required]
+    [Display(Name = "Surname")]
+    public string Surname { get; set; }
+
+    [Required]
+    [Phone]
+    [Display(Name = "Phone Number")]
+    public string MobileNumber { get; set; }
+
+    [Required]
+    // again no post code data type, just postal
+    // could add regex validation for uk postcodes
+    [Display(Name = "PostCode")]
+    public string PostCode { get; set; }
+
+    public IFormFile ProfilePicture { get; set; }
   }
 }

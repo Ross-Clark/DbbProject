@@ -15,12 +15,23 @@ namespace DbbProject.Models
     [DataType(DataType.DateTime)]
     [Display(Name = "Order Time")]
     [DisplayFormat(DataFormatString = "{ddd, dd MMM yyy HH’:’mm’:’ss ‘GMT’}")]
-    public DateTime OrderDate { get; set; }
+    public DateTime OrderDateTime { get; set; }
 
     [DataType(DataType.Currency)]
     [Display(Name = "Total Price")]
     [DisplayFormat(DataFormatString = "{0:C}")]
-    public decimal OrderTotal { get; set; }
+    public decimal OrderTotal {
+      get
+      {
+        decimal orderTotal = 0;
+        foreach (var orderItem in OrderItems)
+        {
+          orderTotal += (orderItem.Quantity * orderItem.Game.Price);
+        }
+        return orderTotal;
+      }
+
+    }
 
   }
 }

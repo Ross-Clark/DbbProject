@@ -14,6 +14,9 @@ namespace DbbProject.Data
         : base(options)
     {
     }
+    public DbSet<Game> Games { get; set; }
+    public DbSet<Order> Orders { get; set; }
+    public DbSet<OrderItem> OrderItems { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
