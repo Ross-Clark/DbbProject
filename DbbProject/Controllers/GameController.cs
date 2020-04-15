@@ -54,7 +54,6 @@ namespace DbbProject.Controllers
   {
 
       // displays all games unless a search term is entered and submitted
-      // overload which allows for sorting
 
       ViewBag.NameSortParm = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
       ViewBag.DescriptionSortParm = sortOrder == "description" ? "description_desc" : "description";
@@ -63,7 +62,8 @@ namespace DbbProject.Controllers
       {
         var games = _context.Games.Where(g => (g.Name.Contains(searchString)
                                               || g.Description.Contains(searchString)) 
-                                              && g.Sold == false); // cant see sold games here
+                                              && g.Sold == false
+                                              && g.OwnerId != _userManager.GetUserAsync(User).Result.Id); // cant see sold games here
 
 
         switch (sortOrder) // sorts games list. default by name
@@ -85,7 +85,8 @@ namespace DbbProject.Controllers
       }
       else
       {
-        var games = _context.Games.Where(x=>x==x); // this is a hacky way of getting this to be an IQueryable, so i cant sort it. needs refactoring
+        var games = _context.Games.Where(x=> x.Sold == false
+                                            && x.OwnerId != _userManager.GetUserAsync(User).Result.Id); // refactored
 
         switch (sortOrder) // sorts games list. default by name
         {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace DbbProject.Models
@@ -24,14 +25,19 @@ namespace DbbProject.Models
       get
       {
         decimal orderTotal = 0;
-        foreach (var orderItem in OrderItems)
-        {
-          orderTotal += (orderItem.Quantity * orderItem.Game.Price);
+        if (OrderItems.Count > 0) { 
+          foreach (var orderItem in OrderItems)
+          {
+            orderTotal += (orderItem.Quantity * orderItem.Game.Price);
+          }
         }
         return orderTotal;
       }
 
     }
+
+    [DefaultValue(true)]
+    public bool Open { get; set; }
 
   }
 }
