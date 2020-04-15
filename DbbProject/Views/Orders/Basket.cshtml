@@ -1,0 +1,68 @@
+﻿@using DbbProject.Models.ViewModels
+@{ 
+    Order tempData = (Order)TempData["Basket"]; 
+    ViewData["Title"] = "Basket";
+}
+
+<h2>Basket</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Game Name
+            </th>
+            <th>
+                Game Description
+            </th>
+            <th>
+                Price
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (tempData.OrderItems.Count > 0)
+        {
+            @foreach (var item in tempData.OrderItems)
+            {
+
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Game.Name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Game.Description)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Game.Price)
+                    </td>
+                    <td>
+                        <a asp-action="Remove" asp-route-id="@item.GameId">Remove Item</a>
+                    </td>
+                </tr>
+            }
+
+        }
+        {
+        <tr>
+            <td>
+                No Items In Basket
+            </td>
+            <td>
+            </td>
+            <td>
+            </td>
+            <td>
+            </td>
+        </tr>
+        }
+
+    </tbody>
+</table>
+<div> <p><strong>TOTAL PRICE : </strong></p> @Html.DisplayText(" £" + tempData.OrderTotal)  </div>
+@if (Model.OrderItemViewModels.Count > 0)
+{
+    <div><button asp-action="Create">Confirm Order</button><button asp-action="ClearBasket">Clear Basket</button></div>
+}
+

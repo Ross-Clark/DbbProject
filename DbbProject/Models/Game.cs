@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.Data.SqlTypes;
 
 namespace DbbProject.Models
 {
@@ -27,6 +29,10 @@ namespace DbbProject.Models
 
     [Display(Name = "Game Image")]
     public byte[] GameImage { get; set; } // the game image. byte[]
+
+    [Display(Name = "Sale Status")]
+    [DefaultValue(false)]
+    public bool Sold { get; set; } // the status of a game sold or unsold
 
     public List<OrderItem> OrderItems { get; set; } // navigational property for what OrderItems is is present in. List of OrderItem
 

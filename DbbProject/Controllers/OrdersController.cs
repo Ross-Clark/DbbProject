@@ -1,153 +1,97 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using DbbProject.Data;
 using DbbProject.Models;
+using DbbProject.Models.ViewModels;
+using Microsoft.AspNetCore.Identity;
 
 namespace DbbProject.Controllers
 {
-    public class OrdersController : Controller
+  public class OrdersController : Controller
+  {
+    private readonly ApplicationDbContext _context;
+    private readonly UserManager<ApplicationUser> _userManager;
+
+    public OrdersController(ApplicationDbContext context)
     {
-        private readonly ApplicationDbContext _context;
-
-        public OrdersController(ApplicationDbContext context)
-        {
-            _context = context;
-        }
-
-        // GET: Orders
-        public async Task<IActionResult> Index()
-        {
-            return View(await _context.Orders.ToListAsync());
-        }
-
-        // GET: Orders/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var order = await _context.Orders
-                .SingleOrDefaultAsync(m => m.OrderId == id);
-            if (order == null)
-            {
-                return NotFound();
-            }
-
-            return View(order);
-        }
-
-        // GET: Orders/Create
-        public IActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: Orders/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("OrderId,UserId,OrderDateTime")] Order order)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.Add(order);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(order);
-        }
-
-        // GET: Orders/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var order = await _context.Orders.SingleOrDefaultAsync(m => m.OrderId == id);
-            if (order == null)
-            {
-                return NotFound();
-            }
-            return View(order);
-        }
-
-        // POST: Orders/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("OrderId,UserId,OrderDateTime")] Order order)
-        {
-            if (id != order.OrderId)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(order);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!OrderExists(order.OrderId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            return View(order);
-        }
-
-        // GET: Orders/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var order = await _context.Orders
-                .SingleOrDefaultAsync(m => m.OrderId == id);
-            if (order == null)
-            {
-                return NotFound();
-            }
-
-            return View(order);
-        }
-
-        // POST: Orders/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var order = await _context.Orders.SingleOrDefaultAsync(m => m.OrderId == id);
-            _context.Orders.Remove(order);
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
-
-        private bool OrderExists(int id)
-        {
-            return _context.Orders.Any(e => e.OrderId == id);
-        }
+      _context = context;
     }
+
+    // POST: Orders/Create
+    // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
+    // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Create()
+    {
+      Order order = (Order) TempData["Basket"];
+      _context.Add(order);
+      await _context.SaveChangesAsync();
+      return RedirectToAction("searchGames", "Game");
+    }
+
+    //post Delete
+    [HttpPost, ActionName("Delete")]
+    [ValidateAntiForgeryToken]
+    public IActionResult Delete()
+    {
+      TempData["Basket"] = null;
+      return RedirectToAction("SearchGames", "Game"); // redirect to search page
+    }
+
+    //post Remove
+    [HttpPost, ActionName("Remove")]
+    [ValidateAntiForgeryToken]
+    public IActionResult Remove(int? id)
+    {
+      Order order = (Order) TempData["Basket"];
+      order.OrderItems.RemoveAll(x => x.GameId == id);
+      TempData["Basket"] = order;
+      return RedirectToAction("SearchGames", "Game"); // redirect to search page
+    }
+
+    //post Add
+    [HttpPost, ActionName("Add")]
+    [ValidateAntiForgeryToken]
+    public IActionResult Add(int id)
+    {
+      if (TempData["Basket"] == null)
+      {
+        Order order = (Order)TempData["Basket"];
+        order.UserId = _userManager.GetUserAsync(User).Result.Id;
+        OrderItem orderItem = new OrderItem()
+        {
+          Game = _context.Games.Find(id),
+          GameId = id,
+          Quantity = 1
+        };
+        order.OrderItems.Add(orderItem);
+        TempData["basket"] = order;
+      }
+      else
+      {
+        Order order = (Order)TempData["Basket"];
+
+        if(!order.OrderItems.Exists(x=>x.GameId == id)) {
+          
+          var orderItem = new OrderItem()
+          {
+            Game = _context.Games.Find(id),
+            GameId = id,
+            Quantity = 1
+          }; 
+          order.OrderItems.Add(orderItem);
+
+        } // should add prompt here for user to see
+        TempData["basket"] = order;
+      }
+      return new EmptyResult(); // redirect to search page
+    }
+
+  }
 }

@@ -8,17 +8,23 @@
 
     <form asp-area="" asp-controller="Account" asp-action="Logout" method="post" id="logoutForm" class="navbar-right">
         <ul class="nav navbar-nav navbar-right">
+            @*<li>
+                    <a asp-area="" asp-controller="Orders" asp-action="Details" title="Manage">Order History</a>
+            </li>*@
+            <li>
+                <a asp-area="" asp-controller="Orders" asp-action="Basket" title="Manage">Order Basket</a>
+            </li>
             <li>
                 @if (profilePicture != null)
                 {
                     var imageBase64 = Convert.ToBase64String(profilePicture);
                     var imageSrc = String.Format("data:image/gif;base64,{0}", imageBase64);
 
-                    <a asp-area="" asp-controller="Manage" asp-action="Index" title="Manage"><img src="@imageSrc" class="img-thumbnail img-rounded" style="width:30px; height:30px"/></a>
+                    <a asp-area="" asp-controller="Manage" asp-action="Index" title="Manage"><img src="@imageSrc" class="img-thumbnail img-rounded" style="width: 30px; height: 30px"/></a>
                 }
                 else
                 {
-                    <a asp-area="" asp-controller="Manage" asp-action="Index" title="Manage"><img src="/images/White-square.jpg" class="img-thumbnail img-rounded glyphicon-align-center" style="width:30px; height:30px" /></a>
+                    <a asp-area="" asp-controller="Manage" asp-action="Index" title="Manage"><img src="/images/White-square.jpg" class="img-thumbnail img-rounded glyphicon-align-center" style="width: 30px; height: 30px"/></a>
                 }
             </li>
             <li>

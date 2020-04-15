@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Hosting;
@@ -11,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using DbbProject.Data;
 using DbbProject.Models;
 using DbbProject.Services;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 
 namespace DbbProject
 {
@@ -37,6 +34,8 @@ namespace DbbProject
       services.AddTransient<IEmailSender, EmailSender>();
 
       services.AddMvc();
+
+      services.AddSingleton<ITempDataProvider, CookieTempDataProvider>();
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

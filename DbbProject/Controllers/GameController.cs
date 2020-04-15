@@ -61,8 +61,9 @@ namespace DbbProject.Controllers
 
       if (!string.IsNullOrEmpty(searchString))
       {
-        var games = _context.Games.Where(g => g.Name.Contains(searchString)
-                                            || g.Description.Contains(searchString));
+        var games = _context.Games.Where(g => (g.Name.Contains(searchString)
+                                              || g.Description.Contains(searchString)) 
+                                              && g.Sold == false); // cant see sold games here
 
 
         switch (sortOrder) // sorts games list. default by name
@@ -84,7 +85,7 @@ namespace DbbProject.Controllers
       }
       else
       {
-        var games = _context.Games.Where(x=>x==x); // this is a hacky way of getting this to be an iqueryable, so i cant sort it needs refactoring
+        var games = _context.Games.Where(x=>x==x); // this is a hacky way of getting this to be an IQueryable, so i cant sort it. needs refactoring
 
         switch (sortOrder) // sorts games list. default by name
         {

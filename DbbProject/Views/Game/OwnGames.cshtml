@@ -24,6 +24,9 @@
         <th>
             @Html.DisplayNameFor(model=> model.GameImage)
         </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Sold)
+        </th>
         <th></th>
     </tr>
     </thead>
@@ -51,6 +54,16 @@
                 else
                 {
                     <p>No Available Image</p>
+                }
+            </td>
+            <td>
+                @if (item.Sold)
+                {
+                    <p><strong>SOLD</strong></p>
+                }
+                else
+                {
+                    <p>For Sale</p>
                 }
             </td>
             <td>
