@@ -68,8 +68,7 @@ namespace DbbProject.Controllers
       if (!string.IsNullOrEmpty(searchString))
       {
         var games = _context.Games.Where(g => (g.Name.Contains(searchString)
-                                              || g.Description.Contains(searchString))
-                                              && g.OwnerId != _userManager.GetUserAsync(User).Result.Id); // cant see sold games here
+                                              || g.Description.Contains(searchString))); 
 
 
         switch (sortOrder) // sorts games list. default by name
@@ -91,7 +90,7 @@ namespace DbbProject.Controllers
       }
       else
       {
-        var games = _context.Games.Where(x=> x.OwnerId != _userManager.GetUserAsync(User).Result.Id); // refactored
+        var games = _context.Games.Where(x=>x==x); // hacky needs refactoring (works low priority)
 
         switch (sortOrder) // sorts games list. default by name
         {

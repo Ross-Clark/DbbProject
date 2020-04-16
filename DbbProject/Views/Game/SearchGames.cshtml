@@ -1,5 +1,5 @@
 ﻿@model IEnumerable<DbbProject.Models.Game>
-
+@inject UserManager<ApplicationUser> ApplicationManager
 @{
     ViewData["Title"] = "SearchAllGames";
 }
@@ -8,7 +8,7 @@
 
 <form asp-controller="Game" asp-action="SearchGames">
     <p>
-        Title: <input type="text" name="searchString">
+        Search: <input type="text" name="searchString">
         <input type="submit" value="Filter" />
     </p>
 </form>
@@ -64,7 +64,11 @@
                     @if (item.Sold)
                     {
                         <p>Sold</p>
-                    }else
+                    }else if (item.OwnerId==ApplicationManager.GetUserAsync(User).Result.Id)
+                    {
+                        <p>Your Game</p>
+                    }
+                    else
                     {
                         <a asp-controller="Orders" asp-action="Basket" asp-route-gameId="@item.GameId" asp-route-function="add">Add to Basket</a>
                     }
