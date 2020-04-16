@@ -34,24 +34,25 @@
                         @Html.DisplayFor(modelItem => item.Game.Price)
                     </td>
                     <td>
-                        <a asp-action="Basket" asp-route-action="remove" asp-route-gameId="@item.GameId">Remove Item</a>
+                        <a asp-action="Basket" asp-route-function="remove" asp-route-gameId="@item.GameId">Remove Item</a>
                     </td>
                 </tr>
             }
 
         }
+        else
         {
-        <tr>
-            <td>
-                No Items In Basket
-            </td>
-            <td>
-            </td>
-            <td>
-            </td>
-            <td>
-            </td>
-        </tr>
+            <tr>
+                <td>
+                    No Items In Basket
+                </td>
+                <td>
+                </td>
+                <td>
+                </td>
+                <td>
+                </td>
+            </tr>
         }
 
     </tbody>
@@ -59,7 +60,9 @@
 
 @if (Model.OrderItems != null && Model.OrderItems.Count > 0)
 {
-    <div> <p><strong>TOTAL PRICE : </strong></p> @Html.DisplayText(" £" + Model.OrderTotal)  </div>
-    <div><button asp-action="confirm">Confirm Order</button></div>
+    int order = Model.OrderId;
+    string orderTotal = Model.OrderTotal.ToString("C");
+    <div> <p><strong>TOTAL PRICE : @orderTotal</strong></p>   </div>
+    <div><a class="btn-link" asp-action="confirmation" asp-route-orderId="@order">Confirm Order and Pay</a></div>
 }
 

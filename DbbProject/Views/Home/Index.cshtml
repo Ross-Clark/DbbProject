@@ -1,12 +1,10 @@
-﻿@inject SignInManager<ApplicationUser> SignInManager
-@inject UserManager<ApplicationUser> UserManager
-
+﻿@inject UserManager<ApplicationUser> UserManager
+@inject SignInManager<ApplicationUser> SignInManager
 @{
     ViewData["Title"] = "Home Page";
 }
 
 <h1> Dull, Boring and Bland Games </h1>
-
 @if (SignInManager.IsSignedIn(User))
 {
     <div class="row">
@@ -16,14 +14,15 @@
             </h2>
         </div>
     </div>
-    <hr/>
-    <div class ="row">
+    <hr />
+    <div class="row">
         <a class="col-md-6 text-center" asp-controller="Game" asp-action="SearchGames">Find a game</a>
         <a class="col-md-6 text-center" asp-controller="Game" asp-action="OwnGames">View @UserManager.GetUserName(User)'s Games</a>
     </div>
 }
 else
 {
+    <hr />
     <div class="row">
         <div class="col-md-6">
             <a class="text-center" asp-controller="Account" asp-action="Register">Register</a>
@@ -33,4 +32,3 @@ else
         </div>
     </div>
 }
-

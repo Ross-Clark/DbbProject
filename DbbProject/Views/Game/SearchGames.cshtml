@@ -17,7 +17,7 @@
     <thead>
         <tr>
             <th>
-                @Html.ActionLink(Html.DisplayNameFor(model=>model.Name), "SearchGames", new { sortOrder = ViewBag.NameSortParm })
+                @Html.ActionLink(Html.DisplayNameFor(model => model.Name), "SearchGames", new { sortOrder = ViewBag.NameSortParm })
             </th>
             <th>
                 @Html.ActionLink(Html.DisplayNameFor(model => model.Description), "SearchGames", new { sortOrder = ViewBag.DescriptionSortParm })
@@ -29,41 +29,48 @@
                 @Html.DisplayNameFor(model => model.Price)
             </th>
             <th>
+                @Html.DisplayNameFor(model => model.Sold)
             </th>
         </tr>
     </thead>
     <tbody>
-    @foreach (var item in Model)
-    {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Description)
-            </td>
-            <td>
-                @if (item.GameImage != null)
-                {
-                    var imageBase64 = Convert.ToBase64String(item.GameImage);
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Description)
+                </td>
+                <td>
+                    @if (item.GameImage != null)
+                    {
+                        var imageBase64 = Convert.ToBase64String(item.GameImage);
 
-                    var imageSrc = String.Format("data:image/gif;base64,{0}", imageBase64);
+                        var imageSrc = String.Format("data:image/gif;base64,{0}", imageBase64);
 
-                    <img src="@imageSrc" class="img-thumbnail img-rounded" style="max-width: 65%; height: auto;" />
-                }
-                else
-                {
-                    <p>No Available Image</p>
-                }
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Price)
-            </td>
-            <th>
-                <a asp-controller="Orders" asp-action="Basket" asp-route-gameId="@item.GameId" asp-route-action="add">Add to Basket</a>
+                        <img src="@imageSrc" class="img-thumbnail img-rounded" style="max-width: 65%; height: auto;" />
+                    }
+                    else
+                    {
+                        <p>No Available Image</p>
+                    }
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Price)
+                </td>
+                <th>
+                    @if (item.Sold)
+                    {
+                        <p>Sold</p>
+                    }else
+                    {
+                        <a asp-controller="Orders" asp-action="Basket" asp-route-gameId="@item.GameId" asp-route-function="add">Add to Basket</a>
+                    }
 
-            </th>
-        </tr>
-    }
+                </th>
+            </tr>
+        }
     </tbody>
 </table>

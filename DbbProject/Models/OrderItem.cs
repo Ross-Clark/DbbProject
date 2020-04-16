@@ -7,11 +7,13 @@ namespace DbbProject.Models
 {
   public class OrderItem
   {
-    public int OrderItemId { get; set; }
+    [Key]
+    public int OrderItemId { get; set; } //Primary key for orderItems
     [ForeignKey("Order")]
     public int OrderId { get; set; }
 
     public Order Order { get; set; }
+
     [ForeignKey("Game")]
     public int GameId { get; set; }
 

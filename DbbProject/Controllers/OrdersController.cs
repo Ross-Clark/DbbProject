@@ -25,35 +25,8 @@ namespace DbbProject.Controllers
           _userManager = userManager;
         }
 
-
-        // GET: Orders/Basket
-        public IActionResult Basket()
-        { 
-          var user = _userManager.GetUserAsync(User).Result;
-          if (!OpenOrderExists())
-          { 
-            Order order = new Order()
-            {
-              Open = true,
-              OrderDateTime = DateTime.Now,
-              OrderItems = new List<OrderItem>(), 
-              UserId = user.Id
-            };
-            _context.Add(order);
-            _context.SaveChanges();
-            return View(order);
-          }
-          else
-          {
-            Order order = _context.Orders.First(o => o.Open && o.UserId == user.Id); // there should only every be one open order per customer
-            return View(order);
-          }
-        }
-
-        // POST: Orders/Basket
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Basket(String action,int gameId)
+        // FUNKY GET: Orders/Basket
+        public async Task<IActionResult> Basket(String function,int gameId)
         {
           var  user = await _userManager.GetUserAsync(User);
 
@@ -66,7 +39,8 @@ namespace DbbProject.Controllers
               Open = true,
               OrderDateTime = DateTime.Now,
               OrderItems = new List<OrderItem>(),
-              UserId = user.Id
+              UserId = user.Id,
+              OrderTotal = 0
             };
             _context.Add(currentOrder);
             _context.SaveChanges();
@@ -78,39 +52,112 @@ namespace DbbProject.Controllers
 
           Game currentGame = await _context.Games.SingleOrDefaultAsync(g => g.GameId == gameId);
 
-          switch (action)
+          switch (function)
           {
             case "add":
-              if(currentGame.OwnerId != user.Id){ // stops the user buying their own game
+
+              currentOrder.OrderItems = _context.OrderItems.Where(x => x.OrderId == currentOrder.OrderId).ToList();
+              foreach (var orderItem in currentOrder.OrderItems)
+              {
+                orderItem.Game = _context.Games.First(x => orderItem.GameId == x.GameId);
+              }
+              if (currentGame.OwnerId != user.Id && (currentOrder.OrderItems == null || !currentOrder.OrderItems.Any(x=>x.GameId == gameId))) // stops the user buying their own game or the same game twice
+              { 
                 OrderItem newOrderItem = new OrderItem()
                 {
                   Game = currentGame,
                   GameId = gameId,
-                  Order = currentOrder,
                   Quantity = 1,
                   OrderId = currentOrder.OrderId
-
                 };
-                _context.Add(newOrderItem);
-                currentOrder.OrderItems.Add(newOrderItem);
+                _context.OrderItems.Add(newOrderItem);
+
+                
+                if (currentOrder.OrderItems != null && currentOrder.OrderItems.Count > 0)
+                {
+                  currentOrder.OrderTotal = 0;
+                  foreach (var orderItem in currentOrder.OrderItems)
+                  {
+                    currentOrder.OrderTotal += (orderItem.Quantity * orderItem.Game.Price);
+                  }
+                }
+
                 _context.Update(currentOrder);
+                _context.Entry(currentGame).State = EntityState.Modified;
+
+                _context.SaveChanges();
+
                 return View(currentOrder);
               }
               return RedirectToAction("SearchGames","Game");// this should never be returned, unless the user breaks something or forges a Post
             case "remove":
+              currentOrder.OrderItems = _context.OrderItems.Where(x => x.OrderId == currentOrder.OrderId).ToList();
+              foreach (var orderItem in currentOrder.OrderItems)
+              {
+                orderItem.Game = _context.Games.First(x => orderItem.GameId == x.GameId);
+              }
               if (currentOrder.OrderItems.Exists(g=>g.GameId==gameId))
               {
-                OrderItem oldOrderItem = currentOrder.OrderItems.First(o=>o.GameId==gameId);
-                currentOrder.OrderItems.Remove(oldOrderItem);
-                _context.Orders.Update(currentOrder);
-                _context.OrderItems.Remove(oldOrderItem);
+                OrderItem oldOrderItem = currentOrder.OrderItems.First(o=>o.GameId==gameId && o.OrderId==currentOrder.OrderId);
+
+                if (currentOrder.OrderItems != null && currentOrder.OrderItems.Count > 0)
+                {
+                  currentOrder.OrderTotal = 0;
+                  foreach (var orderItem in currentOrder.OrderItems)
+                  {
+                    currentOrder.OrderTotal += (orderItem.Quantity * orderItem.Game.Price);
+                  }
+                }
+
+                _context.Remove(oldOrderItem);
+                _context.Update(currentOrder);
+                _context.Entry(currentGame).State = EntityState.Modified;
+                _context.SaveChanges();
+
                 return View(currentOrder);
               }
               return View(currentOrder);// this should never be returned, unless something goes wrong (user tries to remove something twice) prevents this
 
             default:
-              return NotFound();
+              currentOrder.OrderItems = _context.OrderItems.Where(x => x.OrderId == currentOrder.OrderId).ToList();
+              foreach (var orderItem in currentOrder.OrderItems)
+              {
+                orderItem.Game = _context.Games.First(x => orderItem.GameId == x.GameId);
+              }
+              return View(currentOrder);
           }
+        }
+
+        //confirmation
+        public async Task<IActionResult> Confirmation(int orderId)
+        {
+          var user = await _userManager.GetUserAsync(User);
+
+          Order currentOrder;
+          if (_context.Orders.Any(o => o.UserId == user.Id && orderId == o.OrderId && o.Open)) // prevents check out of other users basket or an already closed basket
+          {
+            currentOrder = _context.Orders.First(o => o.UserId == user.Id && orderId == o.OrderId);
+            currentOrder.OrderItems = _context.OrderItems.Where(x => x.OrderId == currentOrder.OrderId).ToList();
+            foreach (var orderItem in currentOrder.OrderItems)
+            {
+              Game currentGame = _context.Games.First(x => orderItem.GameId == x.GameId);
+              orderItem.Game = currentGame;
+              currentGame.Sold = true;
+              _context.Update(currentGame);
+              _context.SaveChanges();
+            }
+          }
+          else
+          {
+            return RedirectToAction(nameof(Basket)); // prevents viewing this page without an open order 
+          }
+
+          currentOrder.OrderDateTime = DateTime.Now;
+          currentOrder.Open = false;
+          _context.Update(currentOrder);
+          _context.SaveChanges();
+
+          return View(currentOrder);
         }
 
         private bool OpenOrderExists()
@@ -121,13 +168,7 @@ namespace DbbProject.Controllers
     }
 
     //
-    // TODO -- redo all of this
-    // just store it all in the order db
-    // validate, so users cant have more than 1 active order
-    // add a property in orders to tell if they have been finished
-    // delete most of this controller and make a normal ICRUD template to rework
-    // only need a basket and conirmation page
-    // basket will just be a details page for 1 order, pick the only closed order a user should have
-    //
-    // make create the add function just validate to make this work
+    // TODO -- redo all of thi
+    // only need a basket and confirmation page
+    // confirm will be a basket + total cost and order date 
 }

@@ -1,0 +1,46 @@
+﻿@model DbbProject.Models.Order;
+@{ViewData["Title"] = "Basket";}
+
+<h2>Basket</h2>
+    <table class="table">
+        <thead>
+        <tr>
+            <th>
+                Game Name
+            </th>
+            <th>
+                Game Description
+            </th>
+            <th>
+                Price
+            </th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var item in Model.OrderItems)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Game.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Game.Description)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Game.Price)
+                </td>
+                <td>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+@{
+        string orderTotal = Model.OrderTotal.ToString("C");
+        string orderDate = Model.OrderDateTime.Date.ToString("ddd dd-mm-yyyy");
+        <div>
+            <p> <strong>TOTAL PRICE: @orderTotal </strong> </p> </div>
+        <div>
+            <p>Order Date: @orderDate </p> </div>
+    }

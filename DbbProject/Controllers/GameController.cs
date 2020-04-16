@@ -8,6 +8,7 @@ using DbbProject.Models.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
 namespace DbbProject.Controllers
 {
@@ -17,14 +18,19 @@ namespace DbbProject.Controllers
 
     private readonly UserManager<ApplicationUser> _userManager;
 
-    public GameController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+    private readonly SignInManager<ApplicationUser> _signInManager;
+
+    public GameController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
     {
       _context = context;
       _userManager = userManager;
+      _signInManager = signInManager;
     }
 
     public async Task<IActionResult> OwnGames(string sortOrder)
-  {
+    {
+      if (!_signInManager.IsSignedIn(User)) return View(); //prevents users entering without being logged in 
+
     //returns all games under a user id
     var games = _context.Games.Where(x => x.OwnerId == _userManager.GetUserId(User));
 
@@ -52,6 +58,7 @@ namespace DbbProject.Controllers
 
     public async Task<IActionResult> SearchGames(string searchString, string sortOrder)
   {
+      if (!_signInManager.IsSignedIn(User)) return View(); //prevents users entering without being logged in 
 
       // displays all games unless a search term is entered and submitted
 
@@ -61,8 +68,7 @@ namespace DbbProject.Controllers
       if (!string.IsNullOrEmpty(searchString))
       {
         var games = _context.Games.Where(g => (g.Name.Contains(searchString)
-                                              || g.Description.Contains(searchString)) 
-                                              && g.Sold == false
+                                              || g.Description.Contains(searchString))
                                               && g.OwnerId != _userManager.GetUserAsync(User).Result.Id); // cant see sold games here
 
 
@@ -85,8 +91,7 @@ namespace DbbProject.Controllers
       }
       else
       {
-        var games = _context.Games.Where(x=> x.Sold == false
-                                            && x.OwnerId != _userManager.GetUserAsync(User).Result.Id); // refactored
+        var games = _context.Games.Where(x=> x.OwnerId != _userManager.GetUserAsync(User).Result.Id); // refactored
 
         switch (sortOrder) // sorts games list. default by name
         {
@@ -293,7 +298,7 @@ namespace DbbProject.Controllers
     return RedirectToAction(nameof(OwnGames)); //redirect back to owngames
     }
 
-    // GET: ComputerAccessories/Details/5
+    // GET: Game/Details/5
     public async Task<IActionResult> Details(int? id)
   {
     if (id == null)
